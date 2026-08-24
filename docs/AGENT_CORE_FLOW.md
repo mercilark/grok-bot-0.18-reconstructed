@@ -132,7 +132,7 @@ flowchart TD
     M12 --> M14[创建 gatewayDispatch]
     M13 --> M14
     M14 --> M15[创建 CoordinatorInferenceRouter]
-    M15 --> M16[dispatchRequest(method,args)]
+    M15 --> M16["dispatchRequest(method,args)"]
     M16 --> M17{method 是 sendPrompt?}
     M17 -->|是| M18[记录 send trace 与 clientNonce]
     M17 -->|否| M19[跳过 send trace]
@@ -162,7 +162,7 @@ flowchart TD
     M37 --> M38[启动 LocalExecSupervisor 与 GatewayClient]
     M38 --> M39{任一 port settled / crash?}
     M39 -->|是| M40[关闭 Gateway、Relay、Supervisor、各 port]
-    M40 --> M41[carrier.exitProcess(exitCode)]
+    M40 --> M41["carrier.exitProcess(exitCode)"]
 ```
 
 ### 2. `source/node-agent-coordinator/inference-router.ts`
@@ -172,8 +172,8 @@ flowchart TD
 ```mermaid
 flowchart TD
     I1([createCoordinatorInferenceRouter]) --> I2[读取 settings 与 transcript store path]
-    I2 --> I3[初始化 queues: Map<agentId, Promise>]
-    I3 --> I4[dispatch(method,args)]
+    I2 --> I3["初始化 queues: Map<agentId, Promise>"]
+    I3 --> I4["dispatch(method,args)"]
     I4 --> I5{reactToMessage?}
     I5 -->|是| I6[load 本地 store 并切换 my reaction]
     I6 --> I7{entry 存在且更新成功?}
@@ -192,7 +192,7 @@ flowchart TD
     I18 --> I19[finally 清理 queues 中的当前 Promise]
     I19 --> I20[立即返回 accepted=true]
 
-    I18 --> I21[execute(provider,args)]
+    I18 --> I21["execute(provider,args)"]
     I21 --> I22{agentId 与 prompt 有效?}
     I22 -->|否| I23[抛出参数错误]
     I22 -->|是| I24[并行读取远端 tail 与本地 store]
@@ -226,12 +226,12 @@ flowchart TD
 flowchart TD
     G1([createHostGatewayApi]) --> G2[获取 transcript、MCP、telemetry 等扩展 API]
     G2 --> G3[返回 Gateway method table]
-    G3 --> G4{收到 method(args)}
+    G3 --> G4{"收到 method(args)"}
     G4 -->|Transcript 查询| G5[校验 id / window 请求]
-    G5 --> G6[manager.getAgentTranscript*]
+    G5 --> G6["manager.getAgentTranscript*"]
     G4 -->|sendPrompt| G7[解析 agentId：显式值 > active agent > roster > unknown]
     G7 --> G8[telemetry.reportMessageSent]
-    G8 --> G9[manager.sendPrompt(prompt, options)]
+    G8 --> G9["manager.sendPrompt(prompt, options)"]
     G9 --> G10[返回 accepted=true]
     G4 -->|createAgent| G11{clientNonce 存在?}
     G11 -->|否| G12[mintAgent]
@@ -243,22 +243,22 @@ flowchart TD
     G14 --> G10
     G16 --> G17
     G17 --> G10
-    G4 -->|openAgent / switchAgent| G18[markActive(app_open) 与 experiment telemetry]
+    G4 -->|openAgent / switchAgent| G18["markActive(app_open) 与 experiment telemetry"]
     G18 --> G19[调用 manager.open/switch]
     G19 --> G20[reportAgentOpen + kickstartIfPending]
     G20 --> G10
     G4 -->|listRoutedMcpTools| G21[mcp.listTools]
     G21 --> G22[投影 name/providerIdentifier/toolName/schema]
     G22 --> G10
-    G4 -->|executeRoutedMcpTool| G23[mcp.createExecutor(agentId)]
-    G23 --> G24[executor.execute(toolName,args,toolCallId)]
+    G4 -->|executeRoutedMcpTool| G23["mcp.createExecutor(agentId)"]
+    G23 --> G24["executor.execute(toolName,args,toolCallId)"]
     G24 --> G10
     G4 -->|refreshMcp| G25{routedAction}
     G25 -->|list-tools| G21
     G25 -->|execute-tool| G23
     G25 -->|OAuth completion| G26[handleDesktopMcpAuthCompletion]
     G25 -->|其它| G27[mcp.management.restart]
-    G4 -->|其它 Host method| G28[method(api,name) 校验并 bind]
+    G4 -->|其它 Host method| G28["method(api,name) 校验并 bind"]
     G28 --> G29[委托对应扩展并返回结果]
 ```
 
@@ -268,7 +268,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    P1([sendPrompt(prompt, options)]) --> P2{有 clientNonce?}
+    P1(["sendPrompt(prompt, options)"]) --> P2{有 clientNonce?}
     P2 -->|否| P3[直接 sendPromptOnce]
     P2 -->|是| P4{nonce 在 inFlightSends?}
     P4 -->|是| P5[复用原 Promise，coalesce duplicate]
@@ -318,7 +318,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    D1([dispatchUserTurn(args)]) --> D2[runnerRegistry.getRunner(session)]
+    D1(["dispatchUserTurn(args)"]) --> D2["runnerRegistry.getRunner(session)"]
     D2 --> D3{有 userMessageId?}
     D3 -->|是| D4[读取 addressed transcript 中最近用户消息]
     D3 -->|否| D5[recentUserMessages=undefined]
@@ -335,11 +335,11 @@ flowchart TD
     D13 --> D14[中断 active one-to-one runner]
     D14 --> D15[记录 preemption、telemetry 与 ack interrupt]
     D15 --> D16[mintAckRunToken]
-    D16 --> D17[enqueueExclusiveRun(session.id)]
+    D16 --> D17["enqueueExclusiveRun(session.id)"]
     D17 --> D18[队列获得执行权]
-    D18 --> D19[turnRuntime.runTurn(session, runner, promptForRun, options, epoch)]
+    D18 --> D19["turnRuntime.runTurn(session, runner, promptForRun, options, epoch)"]
     D19 --> D20[ackGuard.disarm]
-    D20 --> D21[markSendAccepted(clientNonce)]
+    D20 --> D21["markSendAccepted(clientNonce)"]
     D21 --> D22{awaitTurn?}
     D22 -->|是| D23[等待 turnDone 完成]
     D22 -->|否| D24[后台等待并捕获 detached turn error]
@@ -353,7 +353,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    T1([runTurn(session, runner, prompt, options, epoch)]) --> T2[创建 turn trace 与 queue-wait span]
+    T1(["runTurn(session, runner, prompt, options, epoch)"]) --> T2[创建 turn trace 与 queue-wait span]
     T2 --> T3{epoch 过期且带 messageId?}
     T3 -->|否| T8[设置 active prompt/thread/fork/epoch]
     T3 -->|是| T4[读取 latestRecoverySends 与 recent messages]
@@ -362,7 +362,7 @@ flowchart TD
     T5 -->|否| T8
     T8 --> T9[startTurn telemetry + activeTurns]
     T9 --> T10[收集 unanswered widget prompts]
-    T10 --> T11[runner.run(prompt, options + traceCtx + appendReplyReminder)]
+    T10 --> T11["runner.run(prompt, options + traceCtx + appendReplyReminder)"]
     T11 --> T12{quiescedForUpgrade?}
     T12 -->|是| T13[markAgentResumePending]
     T12 -->|否| T14{未 aborted 且仍是当前 epoch?}
@@ -386,7 +386,7 @@ flowchart TD
     T21 --> T27
 
     T15 --> U1[ensureUserReply]
-    U1 --> U2{isDeliveryOwed 且 attempts < 3 且 epoch current?}
+    U1 --> U2{"isDeliveryOwed 且 attempts < 3 且 epoch current?"}
     U2 -->|是| U3[隐藏运行 REPLY_NUDGE_PROMPT]
     U3 --> U4{仍未交付?}
     U4 -->|是| U2
@@ -396,7 +396,7 @@ flowchart TD
     U6 -->|否| U5
     U7 --> U5
 
-    A1([handleAgentUpdate(update)]) --> A2[确定 runSession 与 active-agent]
+    A1(["handleAgentUpdate(update)"]) --> A2[确定 runSession 与 active-agent]
     A2 --> A3[更新 outline、composing、retrying、activity]
     A3 --> A4{update.type}
     A4 -->|tool-call pending/failed| A5[记录 tool start/error/stall telemetry，去重]
@@ -416,7 +416,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    R1([new SandAgentRunner(options)]) --> R2[初始化 conversation state / blob store]
+    R1(["new SandAgentRunner(options)"]) --> R2[初始化 conversation state / blob store]
     R2 --> R3[创建 observation 与 toolCallIdentity]
     R3 --> R4[按 ctx + box 创建 computerUse coordination]
     R4 --> R5[创建 subagent runtime]
@@ -428,7 +428,7 @@ flowchart TD
     R9 -->|是| R10[创建 BackgroundWatches 与 shell terminal watch host]
     R9 -->|否| R11[不启用 background shell watches]
 
-    R12([run(prompt, runOptions)]) --> R13{prompt / attachments 全为空?}
+    R12(["run(prompt, runOptions)"]) --> R13{prompt / attachments 全为空?}
     R13 -->|是| R14[抛出 Prompt cannot be empty]
     R13 -->|否| R15{quiescingForUpgrade?}
     R15 -->|是| R16[返回 quiescedForUpgrade=true]
@@ -445,7 +445,7 @@ flowchart TD
     R25 -->|是| R27[按 maxSteps 循环 runStep]
     R27 --> R28{stepResult.done?}
     R28 -->|否| R27
-    R28 -->|是| R29[settle(result)]
+    R28 -->|是| R29["settle(result)"]
     R29 --> R30{有 text / send-message / reaction?}
     R30 -->|是| R31[组装 SandAgentRunnerResult]
     R30 -->|否| R32[返回 runStep result]
@@ -456,7 +456,7 @@ flowchart TD
     R26 --> R33
     R33 --> R35[清理 active run、first-token timer、request source]
 
-    R36([emitUpdate(update)]) --> R37{首次 text/thinking/tool 输出?}
+    R36(["emitUpdate(update)"]) --> R37{首次 text/thinking/tool 输出?}
     R37 -->|是| R38[标记 streamOutputProduced 并清除首 token deadline]
     R37 -->|否| R39[保持输出状态]
     R38 --> R40{update.send-message?}
@@ -482,7 +482,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    C1([buildAgentForRun(input)]) --> C2[createSandTurnModelProjection(modelId)]
+    C1(["buildAgentForRun(input)"]) --> C2["createSandTurnModelProjection(modelId)"]
     C2 --> C3[把 parentModelInfo / subagentModels 注入 turn]
     C3 --> C4[createTurnAgentToolsHandoff]
     C4 --> C5{有 per-turn provider 或直接依赖?}
@@ -495,15 +495,15 @@ flowchart TD
     C10 --> C11[createTurnAgentForRun]
     C11 --> C12[创建 ForwardingInteractionListener 并应用 privacy mode]
     C12 --> C13[创建 summarization handler]
-    C13 --> C14[new AnysphereAgent(config, toolSession, listener, resource, blob, summary)]
+    C13 --> C14["new AnysphereAgent(config, toolSession, listener, resource, blob, summary)"]
     C14 --> C15[返回 agent、config、toolsGenerator、runStream]
-    C15 --> C16[runStream(streamInput)]
-    C16 --> C17[agent.runStream(attemptCtx,state,action,mcpTools,persistCheckpoint)]
+    C15 --> C16["runStream(streamInput)"]
+    C16 --> C17["agent.runStream(attemptCtx,state,action,mcpTools,persistCheckpoint)"]
 
-    H1([toolsGenerator(props)]) --> H2[合并 turnScope hooks 与 parent/subagent model]
+    H1(["toolsGenerator(props)"]) --> H2[合并 turnScope hooks 与 parent/subagent model]
     H2 --> H3[解析 per-turn shell auto-review]
     H3 --> H4[捕获 stateHandler]
-    H4 --> H5[buildTurnTools(projectedHost, turn, props)]
+    H4 --> H5["buildTurnTools(projectedHost, turn, props)"]
     H5 --> H6[返回本回合 ToolSet]
 
     S1([createTurnAgentStreamStart]) --> S2[createTurnAgentRunStreamInput]
@@ -512,7 +512,7 @@ flowchart TD
     S4 --> S5[原样转发 persistCheckpoint callback]
     S5 --> C17
 
-    P1([createTurnAgentRunInputProjection]) --> P2[createAction(runCtx)]
+    P1([createTurnAgentRunInputProjection]) --> P2["createAction(runCtx)"]
     P2 --> P3{注入 MCP provider?}
     P3 -->|是| P4[getTools；失败则记录 discovery failure]
     P4 --> P5[refreshAccountConfig]
@@ -528,10 +528,10 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    F1([createTurnToolsetFactoriesForTurn]) --> F2[调用 provider 的各 create*Inputs(turn, props)]
+    F1([createTurnToolsetFactoriesForTurn]) --> F2["调用 provider 的各 create*Inputs(turn, props)"]
     F2 --> F3[createTurnToolsetFactories]
     F3 --> F4[得到 task/multitask/shell/read/browser/MCP/SendMessage 等 lazy factories]
-    F4 --> F5[buildTurnTools(host, turn, props)]
+    F4 --> F5["buildTurnTools(host, turn, props)"]
     F5 --> F6{subagent 且非 computer/browser 且无 subagentConfigs?}
     F6 -->|是| F7[返回空 fencedToolSet]
     F6 -->|否| F8[计算 dynamicToolsEnabled]
@@ -575,7 +575,7 @@ flowchart TD
     F36 --> F37
     F37 --> F38[每个工具套 local permission 与 record tool name]
     F38 --> F39[套 execution timeout / dynamic invocation timeout]
-    F39 --> F40[fencedToolSet(guarded, spotlight, registry)]
+    F39 --> F40["fencedToolSet(guarded, spotlight, registry)"]
     F40 --> F41[返回模型可见 ToolSet]
 
     M1([createTurnMcpMetaToolFactory]) --> M2[读取 per-turn MCP descriptors]
@@ -598,7 +598,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    V1([runRoutedProviderText(provider,messages,options)]) --> V2[创建 invocationId 与 usage recorder]
+    V1(["runRoutedProviderText(provider,messages,options)"]) --> V2[创建 invocationId 与 usage recorder]
     V2 --> V3{provider}
     V3 -->|codex| V4[codexExecutor]
     V3 -->|claude-code| V5[claudeExecutor]
@@ -620,7 +620,7 @@ flowchart TD
     A2 -->|是| A4{有 mcpServerUrl?}
     A4 -->|是| A5[配置 grok_bot_plugins HTTP MCP 与 maxTurns=8]
     A4 -->|否| A6[无工具，maxTurns=1]
-    A5 --> A7[queryClaude(providerPrompt(messages))]
+    A5 --> A7["queryClaude(providerPrompt(messages))"]
     A6 --> A7
     A7 --> A8{result subtype success?}
     A8 -->|否| A9[抛出 Claude result error]
@@ -636,7 +636,7 @@ flowchart TD
     A10 --> V7
     O5 --> V7
     V7 --> V8{event=text-delta?}
-    V8 -->|是| V9[累加 text 并回调 onTextDelta(delta, accumulated)]
+    V8 -->|是| V9["累加 text 并回调 onTextDelta(delta, accumulated)"]
     V9 --> V7
     V8 -->|否| V10[等待 result.response]
     V10 --> V11[recordRoutedUsage]
